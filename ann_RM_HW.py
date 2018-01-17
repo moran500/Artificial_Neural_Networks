@@ -149,6 +149,73 @@ mean = accuracies.mean()
 # vypocitanie variance
 variance = accuracies.std()
 
+#=================================================================================================
+# ANN tunning - ked tuningujem ANN tak mozem upravovat nasledovne veci" 
+# 1. mozem zmenit strukturu ANN to znamena ze mozem pridavat alebo uberat jednotlive hidden layers 
+# 2. alebo menit pocet neuronov v jednotlivych skrytych vrstvach
+# 3. alebo sa hrat s parametrami ako je optimizer, batch_size a nb_epoche
+
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.model_selection import GridSearchCV
+from keras.models import Sequential
+from keras.layers import Dense
+
+# funkcia ktora bude vytvarat nasu ANN, rozdiel oproti predchadzajucemu prikladu je ze mame tu parameter pre
+# optimizer aby sme mohli skusat rozne kombinacieho optimizera
+def build_classifier(optimizer):
+    classifier = Sequential()
+    classifier.add(Dense(units = 6, kernel_initializer = 'uniform', input_dim = 11, activation = 'relu'))
+    classifier.add(Dense(units = 6, kernel_initializer = 'uniform', activation = 'relu'))
+    classifier.add(Dense(units = 1, kernel_initializer = 'uniform', activation = 'sigmoid'))
+    classifier.compile(optimizer = optimizer, loss = 'binary_crossentropy', metrics = ['accuracy'])
+    return classifier
+
+# vytvorenie objektu Keras Classifier ale tento krat bez velkosti batchu a poctu epoch lebo to budeme tunit
+classifier = KerasClassifier(build_fn = build_classifier)
+
+# toto je zadefinovanie roznych moznosti pre 3 parametre ktore budeme testovat v roznych kombinaciach
+parameters = { 'batch_size': [25, 32],
+              'nb_epoch': [100, 500],
+              'optimizer': ['adam', 'rmsprop']}
+
+# Grid search je metoda ktoru pouzijeme na tuning ANN.
+# parameter estimator je vlastne nasa ANN ktoru sme zadefinovali v premennej classifier
+# parameter param_grid je zoznam nasich parametrov s jednotlivymi hodnotami ktore chceme otestovat
+# parameter scoring definuje ako bude ANN evaulovana, lebo toto tiez vie spravit
+# cv je cross validation a definuje pocet zlozeni pre closs validation
+grid_search = GridSearchCV(estimator = classifier,
+                           param_grid = parameters,
+                           scoring = 'accuracy',
+                           cv = 10)
+
+grid_search = grid_search.fit(X_train, y_train)
+
+# toto nam vrati hodnoty pre najlepsie parametre ktore vysli z testovania a tiez aka je presnot pre tieto parametre
+best_parameters = grid_search.best_params_
+best_accuracy = grid_search.best_score_
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
