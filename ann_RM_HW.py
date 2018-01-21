@@ -135,13 +135,13 @@ def build_classifier():
     return classifier
 
 # vytvorenie objektu Keras Classifier pre 10 batchov a 100 epoch
-classifier = KerasClassifier(build_fn = build_classifier, batch_size = 10, nb_epoche = 100)
+classifier = KerasClassifier(build_fn = build_classifier, batch_size = 10, nb_epoch = 100)
 
 # toto spusti cele ucenie ANN parameter cv urcuje na kolko celkov sa rozdelia treningove data,
 # vlastne ta 10tka znamena ze sa ucenie bude opakovat 10 krat na 10 roznych casti treningovych dat
 # odporuca sa pouzivat hodnotu 10
-# n_job = -1 znamena ze na vypocet sa pouzije cela kapacita CPU
-accuracies = cross_val_score(estimator = classifier, X = X_train, y = y_train, cv = 10, n_job = -1)
+# n_job = -1 znamena ze na vypocet sa pouzije cela kapacita CPU ale na mojom pocitaci nefunguje -1 a preto musim zadat tam 1
+accuracies = cross_val_score(estimator = classifier, X = X_train, y = y_train, cv = 10, n_jobs = 1)
 
 # vypocitanie priemernej hodnoty z natrenovancych presnosti
 mean = accuracies.mean()
@@ -193,6 +193,77 @@ grid_search = grid_search.fit(X_train, y_train)
 # toto nam vrati hodnoty pre najlepsie parametre ktore vysli z testovania a tiez aka je presnot pre tieto parametre
 best_parameters = grid_search.best_params_
 best_accuracy = grid_search.best_score_
+
+#=================================================================================================
+# ANN tunning - Home work - get the gold medal for the accuracy over 86%
+
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.model_selection import cross_val_score
+from keras.models import Sequential
+from keras.layers import Dense
+
+# funkcia ktora bude vytvarat nasu ANN, rozdiel oproti predchadzajucemu prikladu je ze mame tu parameter pre
+# optimizer aby sme mohli skusat rozne kombinacieho optimizera
+def build_classifier():
+    classifier = Sequential()
+    classifier.add(Dense(units = 6, kernel_initializer = 'uniform', input_dim = 11, activation = 'relu'))
+    classifier.add(Dense(units = 6, kernel_initializer = 'uniform', activation = 'relu'))
+    classifier.add(Dense(units = 1, kernel_initializer = 'uniform', activation = 'sigmoid'))
+    classifier.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = ['accuracy'])
+    return classifier
+
+# vytvorenie objektu Keras Classifier ale tento krat bez velkosti batchu a poctu epoch lebo to budeme tunit
+classifier = KerasClassifier(build_fn = build_classifier, batch_size = 25, nb_epoch = 500)
+
+accuracies = cross_val_score(estimator = classifier, X = X_train, y = y_train, cv = 10, n_jobs = 1)
+
+# vypocitanie priemernej hodnoty z natrenovancych presnosti
+mean = accuracies.mean()
+
+# vypocitanie variance
+variance = accuracies.std()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
