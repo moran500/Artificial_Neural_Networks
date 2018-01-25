@@ -174,8 +174,8 @@ def build_classifier(optimizer):
 classifier = KerasClassifier(build_fn = build_classifier)
 
 # toto je zadefinovanie roznych moznosti pre 3 parametre ktore budeme testovat v roznych kombinaciach
-parameters = { 'batch_size': [25, 32],
-              'nb_epoch': [100, 500],
+parameters = { 'batch_size': [1, 5, 25, 32],
+              'nb_epoch': [50, 100, 500],
               'optimizer': ['adam', 'rmsprop']}
 
 # Grid search je metoda ktoru pouzijeme na tuning ANN.
@@ -208,12 +208,17 @@ def build_classifier():
     classifier = Sequential()
     classifier.add(Dense(units = 6, kernel_initializer = 'uniform', input_dim = 11, activation = 'relu'))
     classifier.add(Dense(units = 6, kernel_initializer = 'uniform', activation = 'relu'))
+    
+# pridavam novu skrytu vrstvu aby som zvysil acuracy    8345 8075 8206
+    
+
+    
     classifier.add(Dense(units = 1, kernel_initializer = 'uniform', activation = 'sigmoid'))
-    classifier.compile(optimizer = 'rmsprop', loss = 'binary_crossentropy', metrics = ['accuracy'])
+    classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
     return classifier
 
 # vytvorenie objektu Keras Classifier ale tento krat bez velkosti batchu a poctu epoch lebo to budeme tunit
-classifier = KerasClassifier(build_fn = build_classifier, batch_size = 25, nb_epoch = 500)
+classifier = KerasClassifier(build_fn = build_classifier, batch_size = 1, nb_epoch = 500)
 
 accuracies = cross_val_score(estimator = classifier, X = X_train, y = y_train, cv = 10, n_jobs = 1)
 
